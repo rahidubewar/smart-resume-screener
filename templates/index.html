@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Resume Screener</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #f5f6f8;
+    color: #1a1d23;
+    font-size: 14px;
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  header {
+    background: #ffffff;
+    border-bottom: 1px solid #e2e5ea;
+    padding: 0 40px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .header-left { display: flex; align-items: center; gap: 10px; }
+
+  .logo-icon {
+    width: 28px; height: 28px;
+    background: #2563eb;
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    color: white;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+  }
+
+  .app-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1a1d23;
+  }
+
+  .header-right {
+    font-size: 12px;
+    color: #6b7280;
+  }
+
+  /* MAIN LAYOUT */
+  .page { max-width: 1060px; margin: 0 auto; padding: 32px 24px; }
+
+  .page-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #1a1d23;
+    margin-bottom: 4px;
+  }
+
+  .page-subtitle {
+    font-size: 13px;
+    color: #6b7280;
+    margin-bottom: 28px;
+  }
+
+  /* CARD */
+  .card {
+    background: #ffffff;
+    border: 1px solid #e2e5ea;
+    border-radius: 8px;
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+
+  .card-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #374151;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #f0f2f5;
+  }
+
+  /* FORM GRID */
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+  .field label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 6px;
+  }
+
+  .field label span {
+    color: #6b7280;
+    font-weight: 400;
+  }
+
+  textarea {
+    width: 100%;
+    background: #ffffff;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    padding: 10px 12px;
+    color: #1a1d23;
+    font-size: 13px;
+    line-height: 1.6;
+    resize: vertical;
+    min-height: 200px;
+    font-family: inherit;
+    transition: border-color 0.15s;
+  }
+
+  textarea:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
+  }
+
+  /* UPLOAD */
+  .upload-area {
+    border: 1.5px dashed #d1d5db;
+    border-radius: 6px;
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s;
+    padding: 20px;
+    background: #fafafa;
+    gap: 8px;
+  }
+
+  .upload-area:hover, .upload-area.drag-over {
+    border-color: #2563eb;
+    background: #eff6ff;
+  }
+
+  .upload-icon {
+    width: 36px; height: 36px;
+    background: #f0f2f5;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    margin-bottom: 4px;
+  }
+
+  .upload-area p {
+    font-size: 13px;
+    color: #6b7280;
+    text-align: center;
+  }
+
+  .upload-area .link { color: #2563eb; font-weight: 500; }
+
+  #file-input { display: none; }
+
+  .file-list { width: 100%; margin-top: 8px; display: flex; flex-direction: column; gap: 4px; }
+
+  .file-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #f0f7ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 5px;
+    padding: 6px 10px;
+    font-size: 12px;
+    color: #1e40af;
+  }
+
+  /* BUTTON */
+  .btn-row { margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px; }
+
+  .btn-primary {
+    padding: 9px 20px;
+    background: #2563eb;
+    border: none;
+    border-radius: 6px;
+    color: white;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s;
+    font-family: inherit;
+  }
+
+  .btn-primary:hover { background: #1d4ed8; }
+  .btn-primary:disabled { background: #93c5fd; cursor: not-allowed; }
+
+  .btn-secondary {
+    padding: 9px 16px;
+    background: white;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    color: #374151;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  .btn-secondary:hover { background: #f9fafb; }
+
+  /* LOADING */
+  .loading {
+    display: none;
+    text-align: center;
+    padding: 48px 24px;
+    color: #6b7280;
+  }
+
+  .spinner {
+    width: 32px; height: 32px;
+    border: 2px solid #e5e7eb;
+    border-top-color: #2563eb;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    margin: 0 auto 12px;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .loading p { font-size: 13px; }
+
+  /* ERROR */
+  .error-box {
+    display: none;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 6px;
+    padding: 12px 16px;
+    color: #b91c1c;
+    font-size: 13px;
+    margin-bottom: 16px;
+  }
+
+  /* RESULTS */
+  .results-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .results-bar h2 { font-size: 16px; font-weight: 600; }
+
+  .count-badge {
+    background: #f0f2f5;
+    border: 1px solid #e2e5ea;
+    border-radius: 20px;
+    padding: 2px 10px;
+    font-size: 12px;
+    color: #6b7280;
+  }
+
+  /* CANDIDATE CARD */
+  .candidate-card {
+    background: #ffffff;
+    border: 1px solid #e2e5ea;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    overflow: hidden;
+  }
+
+  .candidate-card:hover { border-color: #2563eb; }
+
+  .card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid #f0f2f5;
+  }
+
+  .candidate-left { display: flex; align-items: center; gap: 12px; }
+
+  .rank {
+    width: 28px; height: 28px;
+    background: #f0f2f5;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+    font-weight: 600;
+    color: #374151;
+    flex-shrink: 0;
+  }
+
+  .rank-1 { background: #fef3c7; color: #92400e; }
+  .rank-2 { background: #f1f5f9; color: #475569; }
+  .rank-3 { background: #fff7ed; color: #92400e; }
+
+  .candidate-name { font-size: 15px; font-weight: 600; color: #1a1d23; }
+  .candidate-meta { font-size: 12px; color: #6b7280; margin-top: 2px; }
+
+  .candidate-right { display: flex; align-items: center; gap: 16px; }
+
+  .score-block { text-align: right; }
+  .score-num { font-size: 22px; font-weight: 700; line-height: 1; }
+  .score-denom { font-size: 12px; color: #6b7280; }
+  .score-label { font-size: 11px; color: #9ca3af; margin-top: 1px; }
+
+  .score-high { color: #16a34a; }
+  .score-mid { color: #d97706; }
+  .score-low { color: #dc2626; }
+
+  .rec-badge {
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .rec-shortlist { background: #dcfce7; color: #15803d; }
+  .rec-maybe { background: #fef9c3; color: #854d0e; }
+  .rec-reject { background: #fee2e2; color: #b91c1c; }
+
+  /* CARD BODY */
+  .card-body { padding: 16px 20px; }
+
+  .match-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .match-label { font-size: 12px; color: #6b7280; white-space: nowrap; }
+  .match-track {
+    flex: 1;
+    height: 5px;
+    background: #f0f2f5;
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .match-fill {
+    height: 100%;
+    border-radius: 3px;
+    background: #2563eb;
+  }
+
+  .match-pct { font-size: 12px; font-weight: 600; color: #374151; white-space: nowrap; }
+
+  .assessment {
+    font-size: 13px;
+    color: #4b5563;
+    line-height: 1.6;
+    margin-bottom: 14px;
+    padding: 10px 14px;
+    background: #f9fafb;
+    border-left: 3px solid #2563eb;
+    border-radius: 0 4px 4px 0;
+  }
+
+  .skills-section { margin-bottom: 10px; }
+
+  .skills-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #9ca3af;
+    margin-bottom: 6px;
+  }
+
+  .tags { display: flex; flex-wrap: wrap; gap: 5px; }
+
+  .tag {
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 500;
+  }
+
+  .tag-green { background: #dcfce7; color: #15803d; }
+  .tag-red { background: #fee2e2; color: #b91c1c; }
+  .tag-gray { background: #f0f2f5; color: #4b5563; }
+
+  @media (max-width: 680px) {
+    .form-grid { grid-template-columns: 1fr; }
+    header { padding: 0 20px; }
+    .page { padding: 20px 16px; }
+    .candidate-right { gap: 10px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <div class="logo-icon">RS</div>
+    <span class="app-name">Smart Resume Screener</span>
+  </div>
+  <div class="header-right">AI-assisted candidate evaluation</div>
+</header>
+
+<div class="page">
+  <p class="page-title">Screen Candidates</p>
+  <p class="page-subtitle">Upload resumes and provide a job description to evaluate and rank candidates.</p>
+
+  <div class="card">
+    <div class="card-title">Job Details & Resumes</div>
+    <div class="form-grid">
+      <div class="field">
+        <label>Job Description <span>(required)</span></label>
+        <textarea id="jd-input" placeholder="Paste the job description here. Include required skills, experience level, responsibilities, and qualifications..."></textarea>
+      </div>
+      <div class="field">
+        <label>Resumes <span>(PDF or TXT, multiple allowed)</span></label>
+        <div class="upload-area" id="upload-zone" onclick="document.getElementById('file-input').click()">
+          <div class="upload-icon">📄</div>
+          <p><span class="link">Click to upload</span> or drag and drop</p>
+          <p>PDF and TXT files supported</p>
+          <div class="file-list" id="file-list"></div>
+        </div>
+        <input type="file" id="file-input" multiple accept=".pdf,.txt">
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn-secondary" onclick="resetForm()">Clear</button>
+      <button class="btn-primary" id="screen-btn" onclick="screenResumes()">Run Screening</button>
+    </div>
+  </div>
+
+  <div class="error-box" id="error-box"></div>
+
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+    <p>Evaluating candidates, please wait...</p>
+  </div>
+
+  <div id="results"></div>
+</div>
+
+<script>
+  const fileInput = document.getElementById('file-input');
+  const uploadZone = document.getElementById('upload-zone');
+  const fileListEl = document.getElementById('file-list');
+  let selectedFiles = [];
+
+  fileInput.addEventListener('change', (e) => {
+    selectedFiles = Array.from(e.target.files);
+    renderFiles();
+  });
+
+  uploadZone.addEventListener('dragover', (e) => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
+  uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
+  uploadZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadZone.classList.remove('drag-over');
+    selectedFiles = Array.from(e.dataTransfer.files);
+    renderFiles();
+  });
+
+  function renderFiles() {
+    fileListEl.innerHTML = selectedFiles.map(f =>
+      `<div class="file-item">📄 ${f.name}</div>`
+    ).join('');
+  }
+
+  function resetForm() {
+    document.getElementById('jd-input').value = '';
+    selectedFiles = [];
+    fileListEl.innerHTML = '';
+    fileInput.value = '';
+    document.getElementById('results').innerHTML = '';
+    document.getElementById('error-box').style.display = 'none';
+  }
+
+  function showError(msg) {
+    const box = document.getElementById('error-box');
+    box.textContent = msg;
+    box.style.display = 'block';
+  }
+
+  async function screenResumes() {
+    const jd = document.getElementById('jd-input').value.trim();
+    document.getElementById('error-box').style.display = 'none';
+
+    if (!jd) { showError('Please enter a job description before running the screening.'); return; }
+    if (!selectedFiles.length) { showError('Please upload at least one resume.'); return; }
+
+    document.getElementById('screen-btn').disabled = true;
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('results').innerHTML = '';
+
+    const fd = new FormData();
+    fd.append('job_description', jd);
+    selectedFiles.forEach(f => fd.append('resumes', f));
+
+    try {
+      const res = await fetch('/api/screen', { method: 'POST', body: fd });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || 'Screening failed. Please try again.');
+      renderResults(data);
+    } catch (err) {
+      showError(err.message);
+    } finally {
+      document.getElementById('screen-btn').disabled = false;
+      document.getElementById('loading').style.display = 'none';
+    }
+  }
+
+  function scoreClass(s) {
+    return s >= 7 ? 'score-high' : s >= 5 ? 'score-mid' : 'score-low';
+  }
+
+  function recClass(r) {
+    return r === 'Shortlist' ? 'rec-shortlist' : r === 'Maybe' ? 'rec-maybe' : 'rec-reject';
+  }
+
+  function rankClass(i) {
+    return i === 0 ? 'rank rank-1' : i === 1 ? 'rank rank-2' : i === 2 ? 'rank rank-3' : 'rank';
+  }
+
+  function renderResults(data) {
+    const { candidates } = data;
+    let html = `
+      <div class="results-bar">
+        <h2>Screening Results</h2>
+        <span class="count-badge">${candidates.length} candidate${candidates.length !== 1 ? 's' : ''}</span>
+      </div>`;
+
+    candidates.forEach((c, i) => {
+      const { candidate, scoring, filename } = c;
+      const matched = (scoring.matched_skills || []).slice(0, 6).map(s => `<span class="tag tag-green">${s}</span>`).join('');
+      const missing = (scoring.missing_skills || []).slice(0, 4).map(s => `<span class="tag tag-red">${s}</span>`).join('');
+      const skills = (candidate.skills || []).slice(0, 8).map(s => `<span class="tag tag-gray">${s}</span>`).join('');
+
+      html += `
+        <div class="candidate-card">
+          <div class="card-top">
+            <div class="candidate-left">
+              <div class="${rankClass(i)}">${i + 1}</div>
+              <div>
+                <div class="candidate-name">${candidate.name || filename}</div>
+                <div class="candidate-meta">${[candidate.education, candidate.experience_years ? candidate.experience_years + ' yrs experience' : ''].filter(Boolean).join(' &middot; ')}</div>
+              </div>
+            </div>
+            <div class="candidate-right">
+              <span class="rec-badge ${recClass(scoring.recommendation)}">${scoring.recommendation}</span>
+              <div class="score-block">
+                <div class="score-num ${scoreClass(scoring.score)}">${scoring.score}<span class="score-denom">/10</span></div>
+                <div class="score-label">Match Score</div>
+              </div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="match-row">
+              <span class="match-label">Overall match</span>
+              <div class="match-track"><div class="match-fill" style="width:${scoring.match_percentage}%"></div></div>
+              <span class="match-pct">${scoring.match_percentage}%</span>
+            </div>
+            <div class="assessment">${scoring.justification}</div>
+            ${matched ? `<div class="skills-section"><div class="skills-label">Matched Skills</div><div class="tags">${matched}</div></div>` : ''}
+            ${missing ? `<div class="skills-section"><div class="skills-label">Missing Skills</div><div class="tags">${missing}</div></div>` : ''}
+            ${skills ? `<div class="skills-section"><div class="skills-label">All Extracted Skills</div><div class="tags">${skills}</div></div>` : ''}
+          </div>
+        </div>`;
+    });
+
+    document.getElementById('results').innerHTML = html;
+  }
+</script>
+</body>
+</html>
