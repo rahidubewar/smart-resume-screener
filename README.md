@@ -2,6 +2,12 @@
 
 AI-powered resume screening tool that parses resumes, extracts structured data, and scores candidates against a job description using Claude AI.
 
+##Demo video link:
+
+Watch the project demo here:
+https://drive.google.com/file/d/13s3WuGsdujsHgrVybmoY3caCGO2ntitB/view?usp=drive_link
+
+
 ## Architecture
 
 ```
